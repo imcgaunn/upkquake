@@ -41,8 +41,6 @@ def hash_large_file(file, chunksize):
 
 
 def verify_q2_zip(zip_path=constants.DEFAULT_ZIP_PATH):
-    # TODO verify against sha256 hash in constants
-    # read file in 8k chunks and update hasher in same increment
     if hash_large_file(zip_path, constants.HASH_CHUNK_SIZE) != constants.Q2_ARCHIVE_SHA256:
         raise Exception('bad zip file')
 
