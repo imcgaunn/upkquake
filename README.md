@@ -13,3 +13,9 @@ containing the audio soundtrack. The script then takes these .cdr files, convert
 The output of the script is a folder called generated_qbase2 containing
 the game's data assets extracted from the ISO and its CD-audio music in
 .ogg format. The generated_qbase2 directory can be renamed to qbase2 and dropped into a quake II client such as yamagi quake!
+
+# What Is Missing?
+
+Notably, a proper command line interface allowing the user to
+specify where they want to place output files. Once the core
+functionality is finished, this is the first priority.

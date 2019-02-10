@@ -27,12 +27,24 @@ def download_q2_zip(url=constants.Q2_ARCHIVE_URL):
         logger.error('something went wrong downloading q2 zip.', exc_info=True)
 
 
+def hash_large_file(file, chunksize):
+    """ computes a sha256 digest of a large file by reading (at most) chunksize chunks
+    at a time and feeding them to the hasher.
+    """
+    hasher = hashlib.sha256()
+    with open(file, 'rb') as lf:
+        chunk = lf.read(chunksize)
+        while chunk:
+            hasher.update(chunk)
+            chunk = lf.read(chunksize)
+    return hasher.hexdigest()
+
+
 def verify_q2_zip(zip_path=constants.DEFAULT_ZIP_PATH):
     # TODO verify against sha256 hash in constants
     # read file in 8k chunks and update hasher in same increment
-    sha_hasher = hashlib.sha256()
-    with open(zip_path, 'rb') as q2z:
-        pass
+    if hash_large_file(zip_path, constants.HASH_CHUNK_SIZE) != constants.Q2_ARCHIVE_SHA256:
+        raise Exception('bad zip file')
 
 
 def _check_unpacked_files(unpacked_files):
@@ -62,6 +74,7 @@ def unpack_cd_files(quake_zip_path):
     except Exception:
         msg = 'something is wrong with the quake2 zip'
         logger.error(msg, exc_info=True)
+        raise
     # the -s flag switches endianness of audio tracks. without it they
     # sound like static :(
     cmd = ['bchunk', '-s', upkd_bin, upkd_cue, 'Quake 2.iso']
@@ -99,3 +112,4 @@ def convert_cdr_audio(cdr_dir):
             convert_with_sox(f)
     except subprocess.CalledProcessError:
         logger.error(f'failed to convert cdr to ogg :(', exc_info=True)
+        raise

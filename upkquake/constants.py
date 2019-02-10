@@ -8,3 +8,4 @@ DEFAULT_ZIP_PATH = os.path.join(HERE, 'Quake II.zip')
 CD_UNPACK_DIR = os.path.join(HERE, 'unpacked_cd')
 
 DOWNLOAD_CHUNK_BYTES = 1024
+HASH_CHUNK_SIZE = 4096
