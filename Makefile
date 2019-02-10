@@ -1,0 +1,16 @@
+init:
+	pip3 install -r requirements-dev.txt
+
+lint:
+	flake8 upkquake
+
+test:
+	pytest -s upkquake --doctest-modules
+
+install:
+	python setup.py install
+
+clean:
+	rm -rf dist
+	rm -rf build
+	rm -rf *.egg-info
