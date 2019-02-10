@@ -1,4 +1,5 @@
 import os
+import hashlib
 import zipfile
 import subprocess
 import logging
@@ -20,7 +21,18 @@ def start_download_in_threadpool():
 
 
 def download_q2_zip(url=constants.Q2_ARCHIVE_URL):
-    util.download_file(url, constants.DEFAULT_ZIP_PATH)
+    try:
+        util.download_file(url, constants.DEFAULT_ZIP_PATH)
+    except Exception:
+        logger.error('something went wrong downloading q2 zip.', exc_info=True)
+
+
+def verify_q2_zip(zip_path=constants.DEFAULT_ZIP_PATH):
+    # TODO verify against sha256 hash in constants
+    # read file in 8k chunks and update hasher in same increment
+    sha_hasher = hashlib.sha256()
+    with open(zip_path, 'rb') as q2z:
+        pass
 
 
 def _check_unpacked_files(unpacked_files):
