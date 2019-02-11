@@ -8,6 +8,9 @@ and play it on linux.
 this script downloads Quake II.zip from archive.org and converts the bin/cue files to an ISO image containing the game's data track, and .cdr files
 containing the audio soundtrack. The script then takes these .cdr files, converts them each to .ogg and names them according to track number.
 
+It requires bchunk, sox and vorbis-tools to be installed. These can be found in most distro package managers
+:)
+
 # Where Does It Put The Goods?
 
 The output of the script is a folder called generated_qbase2 containing

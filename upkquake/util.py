@@ -24,3 +24,9 @@ def download_file(url, output_path):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
     return output_path
+
+
+def spinning_cursor():
+    while True:
+        for cursor in 'opzfghi':
+            yield cursor
