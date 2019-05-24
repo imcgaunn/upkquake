@@ -8,7 +8,6 @@ import upkquake.util as util
 
 from concurrent.futures import ThreadPoolExecutor
 
-
 logging.basicConfig()
 logger = logging.getLogger("upkquake-main")
 

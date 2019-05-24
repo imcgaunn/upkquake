@@ -95,7 +95,9 @@ def convert_cdr_audio(cdr_dir):
         from quake2 retail disk, convert all the tracks to ogg-vorbis
         with names expected by yamagi quake """
     cdr_files = [
-        os.path.join(cdr_dir, f) for f in os.listdir(cdr_dir) if f.endswith(".cdr")
+        os.path.join(cdr_dir, f)
+        for f in os.listdir(cdr_dir)
+        if f.endswith(".cdr")
     ]
     try:
         for f in cdr_files:

@@ -1,0 +1,15 @@
+#Mac OS garb4ge
+.DS_Store
+*.out
+
+# Python garb4ge
+*.pyc
+.coverage
+.pytest_cache
+.tox
+.cache
+test-results
+
+# text editor temp file garbage
+*.swap
+*.swo

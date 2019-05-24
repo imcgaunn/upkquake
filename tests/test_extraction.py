@@ -23,7 +23,7 @@ def test_hash_large_file(large_file):
     assert hh == "f03913edeb38a9569ccd6588b6338e58eb56fdcf0e8cecd0193cf68f180d6be1"
 
 
-@pytest.mark.scratch
+@pytest.mark.skip
 def test_download_in_threadpool_not_blocking():
     download_handle = extraction.start_download_in_threadpool()
     print("did this happen???")
@@ -31,7 +31,7 @@ def test_download_in_threadpool_not_blocking():
         print("still downloadin...")
 
 
-@pytest.mark.scratch
+@pytest.mark.skip
 def test_download_in_threadpool_local_creation():
     with concurrent.futures.ThreadPoolExecutor() as tp:
         hh = tp.submit(dummy_long_task)
