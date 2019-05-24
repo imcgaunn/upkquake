@@ -5,7 +5,7 @@ lint:
 	flake8 upkquake
 
 test:
-	pytest -s upkquake --doctest-modules
+	pytest -s tests upkquake --doctest-modules
 
 install:
 	python setup.py install
