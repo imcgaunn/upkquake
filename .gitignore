@@ -1,0 +1,4 @@
+*.pyc
+Quake II.zip
+*.egg-info/
+*__pycache__/
