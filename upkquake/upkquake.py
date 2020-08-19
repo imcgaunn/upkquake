@@ -26,10 +26,8 @@ def main(args=[]):
                 sys.stdout.flush()
                 time.sleep(0.1)
                 sys.stdout.write('\b')
-        download_completed = download_handle.result()
-        if not download_completed:
-            msg = 'failed to download quake II.zip :('
-            raise Exception(msg)
+        # check the sha256 hash to determine if download completed successfully
+        extraction.verify_q2_zip(zip_path=constants.DEFAULT_ZIP_PATH)
         extraction.unpack_cd_files(constants.DEFAULT_ZIP_PATH)
         extraction.convert_cdr_audio(constants.CD_UNPACK_DIR)
     return 0
@@ -37,3 +35,4 @@ def main(args=[]):
 
 if __name__ == '__main__':
     sys.exit(main())
+

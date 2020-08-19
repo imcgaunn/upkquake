@@ -3,6 +3,7 @@ import hashlib
 import zipfile
 import subprocess
 import logging
+import shutil
 
 import upkquake.constants as constants
 import upkquake.util as util
@@ -10,6 +11,7 @@ import upkquake.util as util
 
 logging.basicConfig()
 logger = logging.getLogger('upkquake-extraction')
+logger.setLevel('DEBUG')
 
 
 def download_q2_zip(url=constants.Q2_ARCHIVE_URL):
@@ -73,6 +75,38 @@ def unpack_cd_files(quake_zip_path, unpack_dir=constants.CD_UNPACK_DIR):
                                    cwd=unpack_dir,
                                    check=True)
     logger.info(f'bchunk result: {bchunk_result}')
+
+
+def extract_gamefiles_from_iso(isopath, output_dir):
+    # pull Install/Data/baseq2 from iso and cleanup extra files
+    baseq2_relpath = 'Install/Data/baseq2'
+    cmd = ['7z', 'x', '-tiso',
+           f'{isopath}',
+           f'{baseq2_relpath}',
+           f'-o{output_dir}',
+           '-y']
+    extract_result = subprocess.run(cmd,
+                                    check=True)
+    logger.info(f'7z extract result: {extract_result}')
+    # TODO: remove unnecessary files (optional).
+    # considering this optional because they don't take up much space at all
+    # this game was released in 1997...
+    baseq2_extracted = os.path.join(f'{output_dir}', baseq2_relpath)
+    shutil.move(baseq2_extracted, f'{output_dir}/baseq2')
+    shutil.rmtree(f'{output_dir}/Install')
+    logger.info(f'cleaned up {output_dir}/Install')
+
+
+def extract_gamefiles_from_yamagi_patch(patch_exe_path, output_dir):
+    cmd = ['7z',
+           'x',
+           f'{patch_exe_path}',
+           '*',
+           f'-o{output_dir}',
+           '-y']
+    extract_result = subprocess.run(cmd,
+                                    check=True)
+    logger.info(f'7z extract result: {extract_result}')
 
 
 def cdr_name_to_ogg_name(cdr_track_name, output_dir=constants.CD_UNPACK_DIR):
