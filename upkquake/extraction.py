@@ -14,9 +14,9 @@ logger = logging.getLogger("upkquake-extraction")
 logger.setLevel("DEBUG")
 
 
-def download_q2_zip(url=constants.Q2_ARCHIVE_URL):
+def download_q2_zip(url=constants.Q2_ARCHIVE_URL, output_dir=""):
     try:
-        util.download_file(url, constants.DEFAULT_ZIP_PATH)
+        util.download_file(url, os.path.join(output_dir, "Quake II.zip"))
     except Exception:
         logger.error("something went wrong downloading q2 zip.", exc_info=True)
 
@@ -115,8 +115,12 @@ def cdr_name_to_ogg_name(cdr_track_name, output_dir=constants.CD_UNPACK_DIR):
 def convert_with_sox(cdr_path):
     # on cmdline it would be sox $cdr_path $ogg_path and
     # the file extensions should be enough to tell it to convert
-    ogg_name = cdr_name_to_ogg_name(cdr_path)
-    cmd = ["sox", cdr_path, ogg_name]
+    cdr_name = os.path.basename(cdr_path)
+    cdr_dir = os.path.dirname(cdr_path)
+    ogg_name = cdr_name_to_ogg_name(cdr_name)
+    output_ogg_path = os.path.join(cdr_dir, ogg_name)
+    logger.debug(f"saving converted ogg to {output_ogg_path}")
+    cmd = ["sox", cdr_path, output_ogg_path]
     sox_result = subprocess.run(cmd, check=True)
     logger.debug(f"sox conversion result: {sox_result}")
 
@@ -128,6 +132,9 @@ def convert_cdr_audio(cdr_dir):
     cdr_files = [
         os.path.join(cdr_dir, f) for f in os.listdir(cdr_dir) if f.endswith(".cdr")
     ]
+    import pdb
+
+    pdb.set_trace()
     try:
         for f in cdr_files:
             convert_with_sox(f)
