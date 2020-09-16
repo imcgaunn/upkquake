@@ -4,11 +4,14 @@ init:
 lint:
 	flake8 upkquake
 
+format:
+	black .
+
 test:
-	pytest -s upkquake --doctest-modules
+	pytest -s tests --doctest-modules
 
 install:
-	python setup.py install
+	pip install .
 
 develop:
 	pip install -e .
