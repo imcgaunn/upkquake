@@ -1,5 +1,4 @@
 import os
-import hashlib
 import zipfile
 import subprocess
 import logging
@@ -21,21 +20,8 @@ def download_q2_zip(url=constants.Q2_ARCHIVE_URL, output_dir=""):
         logger.error("something went wrong downloading q2 zip.", exc_info=True)
 
 
-def hash_large_file(file, chunksize):
-    """computes a sha256 digest of a large file by reading (at most) chunksize
-    chunks at a time and feeding them to the hasher.
-    """
-    hasher = hashlib.sha256()
-    with open(file, "rb") as lf:
-        chunk = lf.read(chunksize)
-        while chunk:
-            hasher.update(chunk)
-            chunk = lf.read(chunksize)
-    return hasher.hexdigest()
-
-
 def verify_q2_zip(zip_path=constants.DEFAULT_ZIP_PATH):
-    hash = hash_large_file(zip_path, constants.HASH_CHUNK_SIZE)
+    hash = util.hash_large_file(zip_path, constants.HASH_CHUNK_SIZE)
     if hash != constants.Q2_ARCHIVE_SHA256:
         raise Exception("bad zip file")
 
