@@ -1,5 +1,6 @@
 import os
 import pytest
+import secrets
 import shutil
 import tempfile
 import io
@@ -12,11 +13,17 @@ TEST_CHUNK_SIZE = 4096
 
 @pytest.fixture()
 def large_file():
-    lf = tempfile.NamedTemporaryFile()
+    # delete=False required due to windows not allowing multiple
+    # open calls to an already open file - the workaround is to close
+    # the temp file in the fixture before passing the file name around.
+    lf = tempfile.NamedTemporaryFile(delete=False, mode="wb")
     for i in range(10000):
         lf.write(b"0x42" * (TEST_CHUNK_SIZE - 4))
-    yield lf.name
     lf.close()
+    yield lf.name
+    # manually cleanup temp file
+    if os.path.exists(lf.name):
+        os.unlink(lf.name)
 
 
 @pytest.fixture(scope="function")
@@ -43,19 +50,18 @@ def tempdir_assets():
     }:
         asset_path = os.path.join(tempdir_loc, asset_name)
         with open(asset_path, "wb") as f:
-            with open("/dev/urandom", "rb") as urand:
-                pbytes = urand.read(512)
-                contents = pbytes * 10
-                f.write(contents)
-                # save checksum for use in example_asset_infos fixture
-                checksum = util.hash_stream_chunked(io.BytesIO(contents))
-                example_assets.append(
-                    {
-                        "url": f"http://localhost:8888/{asset_name}",
-                        "checksum": checksum,
-                        "output_path": asset_path,
-                    }
-                )
+            pbytes = secrets.token_bytes(512)
+            contents = pbytes * 10
+            f.write(contents)
+            # save checksum for use in example_asset_infos fixture
+            checksum = util.hash_stream_chunked(io.BytesIO(contents))
+            example_assets.append(
+                {
+                    "url": f"http://localhost:8888/{asset_name}",
+                    "checksum": checksum,
+                    "output_path": asset_path,
+                }
+            )
     yield tempdir_loc, example_assets
     # clean up after ourselves
     shutil.rmtree(tempdir_loc, ignore_errors=True)
@@ -66,7 +72,6 @@ def test_hash_large_file(large_file):
     assert hh == "f03913edeb38a9569ccd6588b6338e58eb56fdcf0e8cecd0193cf68f180d6be1"
 
 
-@pytest.mark.skip
 def test_download_asset_with_cache_asset_cached(patch_download_asset, tempdir_assets):
     _, assets = tempdir_assets
     for asset_info in assets:

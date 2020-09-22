@@ -46,13 +46,9 @@ def download_file(url, output_path):
 
 def download_asset_with_cache(asset_info):
     output_path = asset_info["output_path"]
-    asset_url = asset_info["url"]
-    asset_checksum = asset_info["checksum"]
     if os.path.exists(output_path):
         logger.debug(f"{output_path} found, checking integrity")
-        import pdb
 
-        pdb.set_trace()
         if verify_asset(asset_info):
             logger.debug(f"cached copy at {output_path} valid, can skip download")
             return output_path
