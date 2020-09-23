@@ -1,12 +1,11 @@
-import os
-import zipfile
-import subprocess
 import logging
+import os
 import shutil
+import subprocess
+import zipfile
 
 import upkquake.constants as constants
 import upkquake.util as util
-
 
 logging.basicConfig()
 logger = logging.getLogger("upkquake-extraction")

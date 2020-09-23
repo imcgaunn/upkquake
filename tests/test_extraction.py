@@ -1,9 +1,10 @@
-import pytest
-import tempfile
 import concurrent.futures
-import upkquake.extraction as extraction
-import time
 import pprint
+import time
+
+import pytest
+
+import upkquake.extraction as extraction
 
 
 @pytest.mark.skip

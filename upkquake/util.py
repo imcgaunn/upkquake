@@ -1,12 +1,11 @@
-import os
 import hashlib
 import logging
+import os
+
 import requests
 
 import upkquake.constants as constants
 
-
-logging.basicConfig()
 logger = logging.getLogger("upkquake-util")
 
 
@@ -42,34 +41,6 @@ def download_file(url, output_path):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
     return output_path
-
-
-def download_asset_with_cache(asset_info):
-    output_path = asset_info["output_path"]
-    if os.path.exists(output_path):
-        logger.debug(f"{output_path} found, checking integrity")
-
-        if verify_asset(asset_info):
-            logger.debug(f"cached copy at {output_path} valid, can skip download")
-            return output_path
-    return download_asset(asset_info)
-
-
-def download_asset(asset_info):
-    output_path = asset_info["output_path"]
-    asset_url = asset_info["url"]
-    download_file(asset_url, output_path)
-    if not verify_asset(asset_info):
-        msg = f"something went wrong downloading asset {asset_info}"
-        raise RuntimeError(msg)
-    return output_path
-
-
-def verify_asset(asset_info):
-    expected_checksum = asset_info["checksum"]
-    path = asset_info["output_path"]
-    actual_checksum = hash_large_file(path)
-    return actual_checksum == expected_checksum
 
 
 def spinning_cursor():

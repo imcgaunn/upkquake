@@ -1,12 +1,12 @@
+import io
 import os
-import pytest
 import secrets
 import shutil
 import tempfile
-import io
+
+import pytest
 
 import upkquake.util as util
-
 
 TEST_CHUNK_SIZE = 4096
 
