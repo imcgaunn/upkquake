@@ -1,6 +1,7 @@
 import logging
 import sys
 
+import upkquake.assets as assets
 import upkquake.constants as constants
 import upkquake.extraction as extraction
 import upkquake.util as util
@@ -13,10 +14,11 @@ logger.setLevel(logging.INFO)
 def main(args=[]):
     logger.info(f"creating {constants.CACHE_DIR_PATH} if necessary")
     util.mkdir_if_notexists(constants.CACHE_DIR_PATH)
-    # before downloading, check if zip is already downloaded.
-    # archive.org is slow and it's nice to have this cached
 
-    # TODO: download assets
+    logger.info("downloading assets: ")
+    for a in assets.ALL:
+        logger.info(f"downloading {a['url']} to {a['output_path']}")
+        assets.download_with_cache(a)
 
     extraction.unpack_cd_files(
         constants.DEFAULT_ZIP_PATH, unpack_dir=constants.CD_UNPACK_DIR
