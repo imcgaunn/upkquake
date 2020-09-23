@@ -39,6 +39,20 @@ def _check_unpacked_files(unpacked_files):
     return unpacked_bin, unpacked_cue
 
 
+def extract_zip_with_7z(zip_path, output_dir):
+    cmd = [
+        "7z",
+        "x",
+        "-tzip",
+        f"{zip_path}",
+        f"-o{output_dir}",
+        "-y"
+    ]
+    extract_result = subprocess.run(cmd, check=True, encoding="utf-8")
+    logging.debug(f"7z extract result: {extract_result}")
+    return extract_result.stdout
+
+
 def unpack_cd_files(quake_zip_path, unpack_dir=constants.CD_UNPACK_DIR):
     """given path to quake2 zip file with bin/cue extract
     data and audio tracks with bchunk"""
@@ -56,7 +70,7 @@ def unpack_cd_files(quake_zip_path, unpack_dir=constants.CD_UNPACK_DIR):
     # the -s flag switches endianness of audio tracks. without it they
     # sound like static :(
     cmd = ["bchunk", "-s", upkd_bin, upkd_cue, "Quake 2.iso"]
-    bchunk_result = subprocess.run(cmd, cwd=unpack_dir, check=True)
+    bchunk_result = subprocess.run(cmd, cwd=unpack_dir, check=True, encoding="utf-8")
     logger.info(f"bchunk result: {bchunk_result}")
 
 
@@ -72,7 +86,7 @@ def extract_gamefiles_from_iso(isopath, output_dir):
         f"-o{output_dir}",
         "-y",
     ]
-    extract_result = subprocess.run(cmd, check=True)
+    extract_result = subprocess.run(cmd, check=True, encoding="utf-8")
     logger.info(f"7z extract result: {extract_result}")
     # TODO: remove unnecessary files (optional).
     # considering this optional because they don't take up much space at all
@@ -85,8 +99,9 @@ def extract_gamefiles_from_iso(isopath, output_dir):
 
 def extract_gamefiles_from_yamagi_patch(patch_exe_path, output_dir):
     cmd = ["7z", "x", f"{patch_exe_path}", "*", f"-o{output_dir}", "-y"]
-    extract_result = subprocess.run(cmd, check=True)
+    extract_result = subprocess.run(cmd, check=True, encoding="utf-8")
     logger.info(f"7z extract result: {extract_result}")
+    return extract_result.stdout
 
 
 def cdr_name_to_ogg_name(cdr_track_name, output_dir=constants.CD_UNPACK_DIR):
