@@ -1,4 +1,4 @@
 import logging
-import sys
+from rich.logging import RichHandler
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, handlers=[RichHandler()])

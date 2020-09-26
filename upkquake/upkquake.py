@@ -6,7 +6,9 @@ import upkquake.constants as constants
 import upkquake.extraction as extraction
 import upkquake.util as util
 
-logging.basicConfig()
+from rich.logging import RichHandler
+
+logging.basicConfig(level=logging.INFO, handlers=[RichHandler()])
 logger = logging.getLogger("upkquake-main")
 logger.setLevel(logging.INFO)
 

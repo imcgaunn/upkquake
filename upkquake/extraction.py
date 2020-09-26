@@ -1,8 +1,8 @@
 import logging
 import os
+import re
 import shutil
 import subprocess
-import zipfile
 
 import upkquake.constants as constants
 import upkquake.util as util
@@ -40,38 +40,53 @@ def _check_unpacked_files(unpacked_files):
 
 
 def extract_zip_with_7z(zip_path, output_dir):
-    cmd = [
-        "7z",
-        "x",
-        "-tzip",
-        f"{zip_path}",
-        f"-o{output_dir}",
-        "-y"
-    ]
+    cmd = ["7z", "x", "-tzip", f"{zip_path}", f"-o{output_dir}", "-y"]
     extract_result = subprocess.run(cmd, check=True, encoding="utf-8")
     logging.debug(f"7z extract result: {extract_result}")
-    return extract_result.stdout
+    extracted_files = os.listdir(output_dir)
+    return extracted_files
 
 
-def unpack_cd_files(quake_zip_path, unpack_dir=constants.CD_UNPACK_DIR):
-    """given path to quake2 zip file with bin/cue extract
-    data and audio tracks with bchunk"""
-    util.mkdir_if_notexists(unpack_dir)
-    util.mkdir_if_notexists(os.path.join(unpack_dir, "music"))
-    with zipfile.ZipFile(quake_zip_path) as qz:
-        qz.extractall(path=unpack_dir)
-    unpacked_files = os.listdir(unpack_dir)
+def unpack_zip_and_split_cd_tracks(quake_zip_path, output_dir):
+    music_dir = os.path.join(output_dir, "music")
+    util.mkdir_if_notexists(output_dir)
+    util.mkdir_if_notexists(music_dir)
+    extracted_files = extract_zip_with_7z(quake_zip_path, output_dir)
     try:
-        upkd_bin, upkd_cue = _check_unpacked_files(unpacked_files)
+        upkd_bin, upkd_cue = _check_unpacked_files(extracted_files)
     except Exception:
-        msg = "something is wrong with the quake2 zip"
+        msg = "something is wrong with the quake 2 zip :("
         logger.error(msg, exc_info=True)
         raise
-    # the -s flag switches endianness of audio tracks. without it they
-    # sound like static :(
+    # The -s flag switches endianness of audio tracks. without this
+    # flag, the tracks all sound like static :(
     cmd = ["bchunk", "-s", upkd_bin, upkd_cue, "Quake 2.iso"]
-    bchunk_result = subprocess.run(cmd, cwd=unpack_dir, check=True, encoding="utf-8")
+    bchunk_result = subprocess.run(cmd, cwd=output_dir, check=True, encoding="utf-8")
     logger.info(f"bchunk result: {bchunk_result}")
+    cdr_files = [f for f in os.listdir(output_dir) if f.endswith(".cdr")]
+    data_track = os.path.join(output_dir, "Quake 2.iso")
+    return data_track, cdr_files
+
+
+# def unpack_cd_files(quake_zip_path, unpack_dir=constants.CD_UNPACK_DIR):
+#     """given path to quake2 zip file with bin/cue extract
+#     data and audio tracks with bchunk"""
+#     util.mkdir_if_notexists(unpack_dir)
+#     util.mkdir_if_notexists(os.path.join(unpack_dir, "music"))
+#     with zipfile.ZipFile(quake_zip_path) as qz:
+#         qz.extractall(path=unpack_dir)
+#     unpacked_files = os.listdir(unpack_dir)
+#     try:
+#         upkd_bin, upkd_cue = _check_unpacked_files(unpacked_files)
+#     except Exception:
+#         msg = "something is wrong with the quake2 zip"
+#         logger.error(msg, exc_info=True)
+#         raise
+#     # the -s flag switches endianness of audio tracks. without it they
+#     # sound like static :(
+#     cmd = ["bchunk", "-s", upkd_bin, upkd_cue, "Quake 2.iso"]
+#     bchunk_result = subprocess.run(cmd, cwd=unpack_dir, check=True, encoding="utf-8")
+#     logger.info(f"bchunk result: {bchunk_result}")
 
 
 def extract_gamefiles_from_iso(isopath, output_dir):
@@ -105,10 +120,9 @@ def extract_gamefiles_from_yamagi_patch(patch_exe_path, output_dir):
 
 
 def cdr_name_to_ogg_name(cdr_track_name, output_dir=constants.CD_UNPACK_DIR):
-    iso_plus_idx = cdr_track_name.split(".")[1]
-    idx_only = iso_plus_idx.strip("iso")
+    idx = re.match(r".*iso(\d{2})\.cdr", cdr_track_name).group(1)
     music_dir = os.path.join(output_dir, "music")
-    ogg_name = os.path.join(music_dir, f"{idx_only}.ogg")
+    ogg_name = os.path.join(music_dir, f"{idx}.ogg")
     return ogg_name
 
 
@@ -123,19 +137,3 @@ def convert_with_sox(cdr_path):
     cmd = ["sox", cdr_path, output_ogg_path]
     sox_result = subprocess.run(cmd, check=True)
     logger.debug(f"sox conversion result: {sox_result}")
-
-
-def convert_cdr_audio(cdr_dir):
-    """given a directory containing a bunch of cdr audio extracted
-    from quake2 retail disk, convert all the tracks to ogg-vorbis
-    with names expected by yamagi quake"""
-    cdr_files = [
-        os.path.join(cdr_dir, f) for f in os.listdir(cdr_dir) if f.endswith(".cdr")
-    ]
-
-    try:
-        for f in cdr_files:
-            convert_with_sox(f)
-    except subprocess.CalledProcessError:
-        logger.error(f"failed to convert cdr to ogg :(", exc_info=True)
-        raise

@@ -75,16 +75,3 @@ def test_download_with_cache_when_asset_not_cached(tempdir_assets, patch_downloa
         assert output_path
         # download file _should_ be called in this case.
         assert patch_download_file.called
-
-
-def test_download_with_cache_when_present_but_invalid(
-    tempdir_assets, patch_download_file
-):
-    # corrupt checksum, triggering download
-    test_asset = tempdir_assets[0]
-    test_asset["checksum"] = "badbadbadbad"
-
-    output_path = assets.download_with_cache(test_asset)
-    assert output_path
-    # download file _should_ be called in this case.
-    assert patch_download_file.called

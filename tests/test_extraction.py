@@ -2,6 +2,7 @@ import concurrent.futures
 import logging
 import os
 import pprint
+import re
 import shutil
 import tempfile
 import time
@@ -11,7 +12,7 @@ import pytest
 
 import upkquake.extraction as extraction
 
-logger = logging.getLogger('test-extraction')
+logger = logging.getLogger("test-extraction")
 
 
 @pytest.mark.skip
@@ -54,7 +55,7 @@ def example_zip_file(test_temp_dir):
         example_files.append(ep)
 
     zip_path = os.path.join(test_temp_dir, "example.zip")
-    with zipfile.ZipFile(zip_path, 'w') as z:
+    with zipfile.ZipFile(zip_path, "w") as z:
         for ef in example_files:
             z.write(ef, arcname=os.path.basename(ef))
     yield zip_path
@@ -68,5 +69,40 @@ def test_extract_with_7z(example_zip_file, test_temp_dir):
         assert f"examplefile{i}.txt" in extracted_files
 
 
+@pytest.mark.skip("this test takes too long to run all the time")
+def test_unpack_and_split(test_temp_dir):
+    # copy quake2 zip into test temp dir
+    home_dir = os.getenv("USERPROFILE") if os.name == "nt" else os.getenv("HOME")
+    upkquake_cache_dir = os.path.join(home_dir, ".cache", "upkquake")
+    dest_path = os.path.join(test_temp_dir, "Quake II.zip")
+    output_dir = os.path.join(test_temp_dir, "unpacked_cd")
+    logger.info("copying quake II zip to temp dir for fun and testing")
+    shutil.copy(os.path.join(upkquake_cache_dir, "Quake II.zip"), dest_path)
+    data_track, cdr_files = extraction.unpack_zip_and_split_cd_tracks(
+        dest_path, output_dir
+    )
+    assert data_track
+    assert len(cdr_files)
+
+
 def dummy_long_task():
     time.sleep(10)
+
+
+def test_cdr_name_to_ogg_name(test_temp_dir):
+    example_cdr_names = [
+        "Quake 2.iso07.cdr",
+        "Quake 2.iso06.cdr",
+        "Quake 2.iso04.cdr",
+        "Quake 2.iso10.cdr",
+        "Quake 2.iso11.cdr",
+        "Quake 2.iso05.cdr",
+        "Quake 2.iso02.cdr",
+        "Quake 2.iso03.cdr",
+        "Quake 2.iso08.cdr",
+        "Quake 2.iso09.cdr",
+    ]
+    for cdr_name in example_cdr_names:
+        ogg_name = extraction.cdr_name_to_ogg_name(cdr_name, test_temp_dir)
+        logger.info(f"ogg: {ogg_name}")
+        assert re.match(r".*(\d){2}.ogg", ogg_name)
