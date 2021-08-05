@@ -1,38 +1,36 @@
 import logging
 import sys
-import time
 
+import upkquake.assets as assets
 import upkquake.constants as constants
 import upkquake.extraction as extraction
 import upkquake.util as util
 
-from concurrent.futures import ThreadPoolExecutor
+from rich.logging import RichHandler
 
-
-logging.basicConfig()
-logger = logging.getLogger('upkquake-main')
+logging.basicConfig(level=logging.INFO, handlers=[RichHandler()])
+logger = logging.getLogger("upkquake-main")
+logger.setLevel(logging.INFO)
 
 
 def main(args=[]):
-    if not args:
-        with ThreadPoolExecutor() as tpe:
-            download_handle = tpe.submit(extraction.download_q2_zip)
-            spinner = util.spinning_cursor()
-            while download_handle.running():
-                # poor man's progress indicator...
-                # spins through a bunch of letters
-                # while the zip is still downloading.
-                sys.stdout.write(next(spinner))
-                sys.stdout.flush()
-                time.sleep(0.1)
-                sys.stdout.write('\b')
-        # check the sha256 hash to determine if download completed successfully
-        extraction.verify_q2_zip(zip_path=constants.DEFAULT_ZIP_PATH)
-        extraction.unpack_cd_files(constants.DEFAULT_ZIP_PATH)
-        extraction.convert_cdr_audio(constants.CD_UNPACK_DIR)
+    logger.info(f"creating {constants.CACHE_DIR_PATH} if necessary")
+    util.mkdir_if_notexists(constants.CACHE_DIR_PATH)
+
+    logger.info("downloading assets: ")
+    for a in assets.ALL:
+        logger.info(f"downloading {a['url']} to {a['output_path']}")
+        assets.download_with_cache(a)
+
+    extraction.unpack_cd_files(
+        constants.DEFAULT_ZIP_PATH, unpack_dir=constants.CD_UNPACK_DIR
+    )
+    logger.info(f"converting cdr audio to ogg")
+    extraction.convert_cdr_audio(constants.CD_UNPACK_DIR)
+    # TODO: move files around into the proper structure
+    logger.info(f"preparation complete!")
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
-

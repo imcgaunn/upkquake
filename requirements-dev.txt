@@ -1,6 +1,8 @@
 flake8
 pytest
+pytest-mock
 requests
+rich
 python-language-server[all]
 pyls-isort
 pyls-mypy
