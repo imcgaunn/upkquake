@@ -1,20 +1,14 @@
 init:
-	pip3 install -r requirements-dev.txt
+	poetry install
 
 lint:
-	flake8 upkquake
+	poetry run flake8 upkquake
 
 format:
-	black .
+	poetry run black .
 
 test:
-	pytest -s tests --doctest-modules
-
-install:
-	pip install .
-
-develop:
-	pip install -e .
+	poetry run pytest -s tests --doctest-modules
 
 clean:
 	rm -rf dist
