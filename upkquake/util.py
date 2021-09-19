@@ -10,7 +10,7 @@ logger = logging.getLogger("upkquake-util")
 
 
 def mkdir_if_notexists(path):
-    """ just don't crash if dir is there please """
+    """just don't crash if dir is there please"""
     try:
         os.mkdir(path)
     except FileExistsError:
