@@ -5,6 +5,7 @@ import upkquake.assets as assets
 import upkquake.constants as constants
 import upkquake.extraction as extraction
 import upkquake.util as util
+import os.path
 
 from rich.logging import RichHandler
 
@@ -21,14 +22,17 @@ def main(args=[]):
     for a in assets.ALL:
         logger.info(f"downloading {a['url']} to {a['output_path']}")
         assets.download_with_cache(a)
-
-    extraction.unpack_cd_files(
-        constants.DEFAULT_ZIP_PATH, unpack_dir=constants.CD_UNPACK_DIR
+    logger.info(f"unpacking zip and splitting cd data/audio tracks")
+    data_track, cdr_files = extraction.unpack_zip_and_split_cd_tracks(
+        constants.DEFAULT_ZIP_PATH, constants.CD_UNPACK_DIR
     )
-    logger.info(f"converting cdr audio to ogg")
-    extraction.convert_cdr_audio(constants.CD_UNPACK_DIR)
+    logger.debug(f"got data track: {data_track}")
+    logger.debug(f"got cdr_files: {cdr_files}")
+    logger.info("converting cdr audio to ogg")
+    for cdrf in cdr_files:
+        extraction.convert_with_sox(os.path.join(constants.CD_UNPACK_DIR, cdrf))
     # TODO: move files around into the proper structure
-    logger.info(f"preparation complete!")
+    logger.info("preparation complete!")
     return 0
 
 
