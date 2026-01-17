@@ -1,2 +1,28 @@
 [tools]
 python = "3.13.11"
+
+[tasks.init]
+description = "Install dependencies"
+run = "uv sync"
+
+[tasks.lint]
+description = "Lint code with flake8"
+run = "uv run flake8 upkquake"
+
+[tasks.format]
+description = "Format code with black"
+run = "uv run black ."
+
+[tasks.test]
+description = "Run tests"
+run = "uv run pytest -s tests --doctest-modules"
+
+[tasks.clean]
+description = "Remove build artifacts and caches"
+run = """
+rm -rf dist
+rm -rf build
+rm -rf *.egg-info
+rm -rf .venv
+find . -name '__pycache__' -type d -exec rm -rf {} +
+"""

@@ -10,17 +10,18 @@ The tool is invoked via the `upkq` command-line script.
 
 ## Development Commands
 
+Tasks are defined in `mise.toml` and run via `mise run <task>`.
+
 ### Initial Setup
 ```bash
-uv sync
+mise run init
+# or directly: uv sync
 ```
 
 ### Testing
 ```bash
 # Run all tests
-make test
-# or
-uv run pytest -s tests --doctest-modules
+mise run test
 
 # Run a single test file
 uv run pytest -s tests/test_extraction.py
@@ -32,14 +33,10 @@ uv run pytest -s tests/test_extraction.py::test_function_name
 ### Code Quality
 ```bash
 # Format code with black
-make format
-# or
-uv run black .
+mise run format
 
 # Lint code with flake8
-make lint
-# or
-uv run flake8 upkquake
+mise run lint
 
 # Pre-commit hooks (black)
 pre-commit run --all-files
@@ -47,7 +44,7 @@ pre-commit run --all-files
 
 ### Cleanup
 ```bash
-make clean  # Remove build artifacts and __pycache__
+mise run clean  # Remove build artifacts, .venv, and __pycache__
 ```
 
 ## Architecture
