@@ -1,6 +1,5 @@
 import os
 
-
 HERE = os.path.abspath(os.getcwd())
 
 Q2_ARCHIVE_URL = "https://archive.org/download/QuakeII-CDImage/Quake II.zip"

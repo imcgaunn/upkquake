@@ -1,17 +1,22 @@
+.PHONY: init lint format test clean
+
 init:
-	poetry install
+	uv sync
 
 lint:
-	poetry run flake8 upkquake
+	uv run flake8 upkquake
 
 format:
-	poetry run black .
+	uv run black .
 
 test:
-	poetry run pytest -s tests --doctest-modules
+	uv run pytest -s tests --doctest-modules
 
 clean:
 	rm -rf dist
 	rm -rf build
 	rm -rf *.egg-info
+	rm -rf .venv
 	find . -name '__pycache__' -type d -exec rm -rf {} +
+
+.DEFAULT_GOAL := init
