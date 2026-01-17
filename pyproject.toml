@@ -1,24 +1,28 @@
-[tool.poetry]
+[project]
 name = "upkquake"
 version = "0.1.0"
 description = "a program to bootstrap quake ii retail cd for modern client"
-authors = ["ian mcgaunn <ian@mcgaunn.com>"]
-license = "WTFPL"
+authors = [{name = "ian mcgaunn", email = "ian@mcgaunn.com"}]
+license = {text = "WTFPL"}
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "rich>=10.10.0",
+    "requests>=2.26.0",
+    "pyyaml>=6.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-rich = "^10.10.0"
-requests = "^2.26.0"
-
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-flake8 = "^3.9.2"
-pre-commit = "^2.15.0"
-black = "^21.9b0"
-
-[tool.poetry.scripts]
+[project.scripts]
 upkq = "upkquake.upkquake:main"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=6.2.5",
+    "flake8>=3.9.2",
+    "pre-commit>=2.15.0",
+    "black>=21.9b0",
+]
